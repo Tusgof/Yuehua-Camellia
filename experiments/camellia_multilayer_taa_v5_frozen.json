@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "strategy_id": "camellia_multilayer_taa",
+  "version": 5,
+  "frozen_on": "2026-09-18",
+  "plan_commit": "8a2413221f8dd4cecc2a57712d718f2d44c23d3b",
+  "runner_commit": "fc5e8ab",
+  "data_sha256": "cb90a45a432e09cd52f70e12ce60a0349ff78bce35d76cdb655279a9f586d62c",
+  "selection_blocks": [
+    "2008-08_to_2012-12",
+    "2013-01_to_2018-12",
+    "2019-01_to_2022-12"
+  ],
+  "accepted_experiments": [
+    "q16_fixed_vti",
+    "q18_rank_buffer",
+    "q20_regional_equity"
+  ],
+  "rejected_experiments": [
+    "q17_deflation_only",
+    "q17_inflation_only",
+    "q19_alternative_macro"
+  ],
+  "selected_config": {
+    "fixed_vti": true,
+    "regional_equity": true
+  },
+  "selection_rule_result": "combined_accepted_experiments",
+  "research_summary": {
+    "median_cagr": 0.06287978827977159,
+    "median_high_cost_cagr": 0.055291228140619486,
+    "median_calmar": 1.1952606898660325,
+    "median_ulcer_index": 0.025433436277460135,
+    "median_maximum_drawdown": -0.07785765692690627,
+    "worst_maximum_drawdown": -0.09273338601917813,
+    "median_recovery_months": 16.0,
+    "median_upside_beta_spy": 0.15550624008960537,
+    "median_downside_beta_spy": 0.05594720601157407,
+    "median_turnover": 7.227793230112392,
+    "median_top_5_months_pnl_share": 0.6583358598242621
+  },
+  "recent_diagnostic_evaluated_when_frozen": false
+}
