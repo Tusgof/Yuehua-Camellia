@@ -12,7 +12,9 @@ REQUIRED_FILES = (
     "IMPLEMENT_PLAN.md",
     "AGENTS.md",
     "RESEARCH_LOG_FORMAT.md",
+    ".env.example",
     "config/project.json",
+    "docs/WEBULL_OPENAPI.md",
     "experiments/strategy_registry.json",
     "strategies/STRATEGY_TEMPLATE.md",
     "reports/BACKTEST_REPORT_TEMPLATE.md",
@@ -58,6 +60,18 @@ def validate() -> list[str]:
         errors.append("paper_trade_owner_approval_guard_missing")
     if project.get("max_adjusted_variants_per_idea") != 2:
         errors.append("variant_limit_must_equal_two")
+    if project.get("preferred_paper_provider") != "webull_thailand":
+        errors.append("preferred_paper_provider_must_be_webull_thailand")
+
+    env_example = (ROOT / ".env.example").read_text(encoding="utf-8")
+    expected_placeholders = {
+        "CAMELLIA_WEBULL_ENV=disabled",
+        "CAMELLIA_WEBULL_APP_KEY=replace_outside_git",
+        "CAMELLIA_WEBULL_APP_SECRET=replace_outside_git",
+        "CAMELLIA_WEBULL_ACCOUNT_ID=replace_outside_git",
+    }
+    if not expected_placeholders.issubset(set(env_example.splitlines())):
+        errors.append("webull_env_example_must_contain_safe_placeholders")
 
     registry = load_json("experiments/strategy_registry.json")
     if registry.get("schema_version") != 1:

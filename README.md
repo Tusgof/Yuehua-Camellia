@@ -43,3 +43,5 @@ python -m unittest discover -s tests -v
 ```
 
 ดูสถานะและแผนล่าสุดที่ `PROJECT_BRAIN.md` และ `IMPLEMENT_PLAN.md`
+
+คู่มือ Webull Thailand/OpenAPI และสถานะที่ยืนยันแล้วอยู่ที่ `docs/WEBULL_OPENAPI.md`

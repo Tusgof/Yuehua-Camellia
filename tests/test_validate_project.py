@@ -33,6 +33,12 @@ class ProjectValidationTests(unittest.TestCase):
                 "unsafe_project_guard:live_trading_enabled", VALIDATOR.validate()
             )
 
+    def test_webull_example_contains_placeholders_only(self) -> None:
+        env_example = (ROOT / ".env.example").read_text(encoding="utf-8")
+        self.assertIn("CAMELLIA_WEBULL_ENV=disabled", env_example)
+        self.assertIn("CAMELLIA_WEBULL_APP_KEY=replace_outside_git", env_example)
+        self.assertIn("CAMELLIA_WEBULL_APP_SECRET=replace_outside_git", env_example)
+
     def test_paper_trading_requires_evidence_and_owner_approval(self) -> None:
         real_load_json = VALIDATOR.load_json
 

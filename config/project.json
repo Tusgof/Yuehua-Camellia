@@ -2,6 +2,7 @@
   "project": "Camellia",
   "mode": "rapid_strategy_replication_and_paper_testing",
   "max_adjusted_variants_per_idea": 2,
+  "preferred_paper_provider": "webull_thailand",
   "live_trading_enabled": false,
   "broker_connection_enabled": false,
   "credentials_in_repository_allowed": false,

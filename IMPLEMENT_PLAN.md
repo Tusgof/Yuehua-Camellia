@@ -55,13 +55,16 @@ Camellia ทำงานทีละกลยุทธ์และมุ่ง�
 
 ระหว่างทดลองให้บันทึก signal, proposed order, simulated fill, cost และความคลาดเคลื่อนจาก backtest ทุกครั้ง
 
+Webull Thailand เป็น provider ตัวเลือกแรก แต่ paper trade ระยะแรกให้จำลอง fill ภายใน Camellia และใช้ Webull เฉพาะข้อมูลแบบ read-only ตาม `docs/WEBULL_OPENAPI.md` การอ่าน credential และการเรียก API ต้องเป็นงานที่เจ้าของอนุมัติแยกต่างหาก
+
 ## M4 — Review
 
 เปรียบเทียบพอร์ตจำลองกับความคาดหวังจาก backtest แล้วตัดสินใจ `continue`, `revise` หรือ `retire` ไม่มีการเลื่อนไปเงินจริงอัตโนมัติ
 
 ## งานที่พักไว้
 
-- การเชื่อม Webull/IBKR
+- การ implement Webull adapter จนกว่าจะมีกลยุทธ์ที่ผ่าน backtest และมี paper plan
+- การเชื่อม IBKR
 - live order routing
 - ระบบหลายกลยุทธ์
 - dashboard

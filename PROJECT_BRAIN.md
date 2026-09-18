@@ -38,10 +38,14 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 - กลยุทธ์ที่กำลังทดสอบ: ยังไม่มี
 - กลยุทธ์ใน paper trade: ยังไม่มี
 - ผลกำไรที่ยืนยันแล้ว: ยังไม่มี
+- Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
+- Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
 ## ขั้นต่อไป
 
 รับกลยุทธ์ตัวแรกจากเจ้าของ บันทึกแหล่งที่มา แปลงเป็นกติกาที่ไม่กำกวม และตกลงข้อมูล/เกณฑ์ผ่านก่อนรัน backtest
+
+เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 
 ## แหล่งหลักด้านวิธีวิจัย
 
