@@ -78,6 +78,21 @@ Lily ตรวจ production API เมื่อ `2026-07-15` โดยใช้
 - สิทธิ์ใช้ UAT/test account ของเจ้าของ
 - Webull paper-trading endpoint ที่เหมาะกับบัญชีไทย
 
+## Paper Trading Challenge 2026
+
+ตรวจหน้ากิจกรรมและ Terms and Conditions ทางการเมื่อ `2026-09-18`:
+
+- กิจกรรมใช้บัญชีทดลองเฉพาะการแข่งขัน เงินเริ่มต้น USD 20,000
+- เลือกได้เพียงหนึ่งสนามและเปลี่ยนภายหลังไม่ได้
+- สนามหุ้นและ ETF ใช้คำสั่งระหว่างเวลาซื้อขายปกติและจับคู่ที่ Bid/Ask แบบ real-time
+- จำกัดสูงสุด 300 คำสั่งต่อวันทำการ
+- รายชื่อหลักทรัพย์ที่เข้าแข่งขันอยู่หลังหน้า login
+- Terms ไม่ได้ระบุการส่งคำสั่งผ่าน OpenAPI
+
+เอกสาร OpenAPI ทางการระบุ account type เพียง `CASH` และ account class `INDIVIDUAL_CASH` และไม่มี paper/simulated/Challenge account หรือ paper-order endpoint ดังนั้น Camellia ถือว่า **Challenge ไม่รองรับการส่งคำสั่งผ่าน API** จนกว่า Webull จะมีเอกสารทางการหรือ endpoint ที่พิสูจน์ตรงกันข้าม ห้ามใช้ production brokerage order endpoint ทดลองกับ Challenge
+
+การตรวจ read-only เมื่อ `2026-09-18` พบว่า environment ยังมี App Key/Secret แต่ token directory เดิมไม่มีอยู่แล้ว SDK ไม่ตอบกลับภายใน 30 วินาที จึงหยุดโดยไม่อ่าน payload บัญชีและไม่เรียก preview/place/replace/cancel
+
 Lily เคยลองยืนยัน UAT แล้ว authentication ไม่เข้าสู่สถานะพร้อมภายในเวลาที่กำหนด และไม่พบขั้นตอนสาธารณะสำหรับจัดสรร test account ที่เจ้าของควบคุมได้ ดังนั้น hostname UAT เป็นเพียงข้อมูลอ้างอิง ไม่ใช่สิทธิ์ใช้งานที่ยืนยันแล้ว
 
 ## การตั้งค่า credential

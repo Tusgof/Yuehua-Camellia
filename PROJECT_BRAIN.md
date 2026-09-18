@@ -41,11 +41,12 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 - Research round 7: Q26 Selective Canary ผ่านเกณฑ์ใหม่และสร้าง strategy v6; Q27 Structural Risk Budget และ Q28 Slower Regional Ranking ถูกปฏิเสธ
 - Camellia Growth round 8: `reject`; Q29–Q32 ไม่มี candidate ผ่านเกณฑ์ครบ จึงไม่สร้าง v7 โดย Q30 Aggressive Risk-On เป็น shadow candidate ที่น่าติดตามแต่ยังไม่รับ allocation
 - Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
+- Webull Challenge: ไม่พบ paper-order API; OpenAPI รองรับเฉพาะบัญชี Cash จริง จึงใช้ owner-manual execution สำหรับ Q30 และ internal shadow ledger สำหรับ v6 ตาม `paper_trading/camellia_v6_q30_challenge_plan.md`
 - Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
 ## ขั้นต่อไป
 
-จัดทำ paper-trading plan สำหรับ v6 เป็น milestone แยก และพิจารณาบันทึก Q30 Aggressive Risk-On กับ Q21 Managed Futures เป็น shadow signals ที่ไม่รับ allocation เพื่อสะสม forward evidence โดยเริ่มจาก offline signal/order proposal, position limits, stop conditions และ simulated fills แล้วขออนุมัติเจ้าของก่อนทำ read-only Webull validation
+รอเจ้าของเข้าร่วมสนามหุ้นและ ETF ของ Webull Challenge ยืนยันว่า VTI, DBC, EWJ, IPAC และ SHY ใช้ได้ และส่งข้อมูล fill หลังทำคำสั่ง manual จากนั้นบันทึก Q30 ใน Challenge ledger และ v6 ใน internal shadow ledger แยกกัน
 
 เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 

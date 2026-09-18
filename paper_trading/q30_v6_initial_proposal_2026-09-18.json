@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "created_on": "2026-09-18",
+  "status": "awaiting_owner_eligibility_check_and_manual_fills",
+  "signal_date": "2026-08-31",
+  "data_sha256": "d172c79deb9ee206ee3c433c26d6cbd28d017c7b4186283a11be41546ce0c75f",
+  "canary_state": "rate_warning",
+  "challenge": {
+    "provider": "Webull Thailand Paper Trading Challenge",
+    "league": "US Stock & ETF",
+    "starting_virtual_capital_usd": 20000,
+    "execution": "owner_manual_only",
+    "strategy": "q30_aggressive_risk_on_shadow",
+    "targets": {
+      "VTI": {"weight": 0.60, "notional_usd": 12000},
+      "DBC": {"weight": 0.125, "notional_usd": 2500},
+      "EWJ": {"weight": 0.10, "notional_usd": 2000},
+      "IPAC": {"weight": 0.10, "notional_usd": 2000},
+      "SHY": {"weight": 0.075, "notional_usd": 1500}
+    }
+  },
+  "internal_shadow": {
+    "starting_virtual_capital_usd": 20000,
+    "strategy": "camellia_v6",
+    "targets": {
+      "VTI": {"weight": 0.40, "notional_usd": 8000},
+      "SHY": {"weight": 0.225, "notional_usd": 4500},
+      "DBC": {"weight": 0.175, "notional_usd": 3500},
+      "EWJ": {"weight": 0.10, "notional_usd": 2000},
+      "IPAC": {"weight": 0.10, "notional_usd": 2000}
+    }
+  },
+  "required_owner_confirmation": [
+    "joined_us_stock_and_etf_league",
+    "all_symbols_eligible",
+    "fractional_or_notional_orders_supported",
+    "executed_quantities_prices_and_timestamps"
+  ]
+}
