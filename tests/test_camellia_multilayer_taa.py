@@ -46,6 +46,13 @@ assert ROUND7_SPEC and ROUND7_SPEC.loader
 ROUND7 = importlib.util.module_from_spec(ROUND7_SPEC)
 ROUND7_SPEC.loader.exec_module(ROUND7)
 
+GROWTH_SPEC = importlib.util.spec_from_file_location(
+    "camellia_growth", ROOT / "scripts" / "experiment_camellia_growth.py"
+)
+assert GROWTH_SPEC and GROWTH_SPEC.loader
+GROWTH = importlib.util.module_from_spec(GROWTH_SPEC)
+GROWTH_SPEC.loader.exec_module(GROWTH)
+
 
 class CamelliaBacktestTests(unittest.TestCase):
     def test_weighted_and_unweighted_momentum_are_distinct(self) -> None:
@@ -355,6 +362,49 @@ class CamelliaBacktestTests(unittest.TestCase):
                 structural_risk_budget=True,
                 slower_regional_ranking=True,
             )
+
+    def test_growth_baseline_matches_v6(self) -> None:
+        prices = self._round7_prices()
+        expected, _ = ROUND7.build_targets(prices, selective_canary=True)
+        actual, _ = GROWTH.build_targets(prices)
+        pd.testing.assert_frame_equal(
+            actual.loc[:, list(ROUND7.UNIVERSE)], expected, check_freq=False
+        )
+        self.assertAlmostEqual(float(actual["_FINANCING"].abs().sum()), 0.0)
+
+    def test_growth_partial_vwo_warning_retains_half_equity(self) -> None:
+        prices = self._round7_prices()
+        prices["VWO"] = np.linspace(140.0, 100.0, len(prices))
+        targets, meta = GROWTH.build_targets(prices, partial_canary_cuts=True)
+        self.assertEqual(meta.iloc[-1]["canary_regime"], "vwo_warning")
+        self.assertAlmostEqual(float(targets.iloc[-1]["VTI"]), 0.20)
+        self.assertAlmostEqual(float(meta.iloc[-1]["total_defensive"]), 0.30)
+
+    def test_growth_aggressive_no_warning_removes_duration(self) -> None:
+        targets, meta = GROWTH.build_targets(
+            self._round7_prices(), aggressive_risk_on=True
+        )
+        self.assertEqual(meta.iloc[-1]["canary_regime"], "no_warning")
+        self.assertAlmostEqual(float(targets.iloc[-1]["VTI"]), 0.60)
+        self.assertAlmostEqual(float(targets.iloc[-1]["IEF"]), 0.0)
+        self.assertAlmostEqual(float(targets.iloc[-1]["TLT"]), 0.0)
+
+    def test_growth_sector_satellite_is_twenty_percent(self) -> None:
+        targets, meta = GROWTH.build_targets(
+            self._round7_prices(), sector_satellite=True
+        )
+        winner = str(meta.iloc[-1]["sector_winner"])
+        self.assertIn(winner, GROWTH.SECTORS)
+        self.assertAlmostEqual(float(targets.iloc[-1][winner]), 0.20)
+        self.assertAlmostEqual(float(targets.iloc[-1]["VTI"]), 0.20)
+
+    def test_growth_overlay_has_twenty_percent_financing(self) -> None:
+        targets, meta = GROWTH.build_targets(
+            self._round7_prices(), conditional_overlay=True
+        )
+        self.assertAlmostEqual(float(targets.iloc[-1]["_FINANCING"]), -0.20)
+        self.assertAlmostEqual(float(meta.iloc[-1]["gross_exposure"]), 1.20)
+        self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
 
 
 if __name__ == "__main__":
