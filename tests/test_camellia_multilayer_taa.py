@@ -137,6 +137,28 @@ class CamelliaBacktestTests(unittest.TestCase):
         self.assertTrue(result.iloc[1]["target_changed"])
         self.assertGreater(result.iloc[1]["cost"], 0.0)
 
+    def test_v4_diversified_defense_keeps_half_in_shy(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V4.UNIVERSE)
+            },
+            index=dates,
+        )
+        prices.loc[:, list(BACKTEST.CANARIES)] = np.linspace(
+            140.0, 100.0, len(dates)
+        )[:, None]
+
+        targets, meta = V4.build_modular_targets(
+            prices, diversified_defense=True
+        )
+        defensive_budget = float(meta.iloc[-1]["total_defensive"])
+
+        self.assertGreater(defensive_budget, 0.0)
+        self.assertGreaterEqual(targets.iloc[-1]["SHY"], 0.5 * defensive_budget)
+        self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
