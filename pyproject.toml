@@ -1,0 +1,8 @@
+[project]
+name = "yuehua-camellia"
+version = "0.1.0"
+description = "A lightweight strategy replication, backtest, and paper-trading research project"
+requires-python = ">=3.14,<3.15"
+
+[tool.unittest]
+start-directory = "tests"

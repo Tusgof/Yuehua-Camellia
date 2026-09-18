@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project": "Camellia",
+  "allowed_statuses": [
+    "idea",
+    "specified",
+    "backtested",
+    "reject",
+    "revise",
+    "paper_ready",
+    "paper_trading",
+    "retired"
+  ],
+  "strategies": []
+}
