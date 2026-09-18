@@ -4,7 +4,7 @@
 
 - ID: `camellia_multilayer_taa`
 - Version: `1`
-- Status: `specified`
+- Status: `revise`
 - Source creator: Yuehua Research Lab
 - Source URL: `file:///D:/Fogust/Workspace/LLM%20Wiki/LLM%20Wiki/wiki/synthesis.md`
 - Source accessed date: `2026-09-18`
