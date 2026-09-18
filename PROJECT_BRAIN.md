@@ -38,12 +38,13 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 - กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v5 สถานะ `paper_ready`; ใช้ VTI คงที่, regional equity momentum และ Defensive policy ของ v4 โดยไม่ใช้ leverage
 - กลยุทธ์ใน paper trade: ยังไม่มี
 - ผลล่าสุด: v5 ช่วงเต็ม CAGR 6.47%, Sharpe 0.74, maximum drawdown -11.79% และ turnover 8.33x; recent diagnostic CAGR 5.75%, Sharpe 0.34 และ maximum drawdown -8.13%
+- Research round v6: `reject`; Q21–Q25 ไม่มีข้อใดผ่านเกณฑ์ จึงคง v5 โดย Managed Futures ลด drawdown ได้แต่มีประวัติจริงสั้นเกินไปสำหรับการรับเข้าระบบ
 - Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
 - Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
 ## ขั้นต่อไป
 
-จัดทำ paper-trading plan สำหรับ v5 เป็น milestone แยก โดยเริ่มจาก offline signal/order proposal, position limits, stop conditions และ simulated fills แล้วขออนุมัติเจ้าของก่อนทำ read-only Webull validation
+จัดทำ paper-trading plan สำหรับ v5 เป็น milestone แยก และพิจารณาบันทึก Q21 Managed Futures เป็น shadow signal ที่ไม่รับ allocation เพื่อสะสม forward evidence โดยเริ่มจาก offline signal/order proposal, position limits, stop conditions และ simulated fills แล้วขออนุมัติเจ้าของก่อนทำ read-only Webull validation
 
 เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 

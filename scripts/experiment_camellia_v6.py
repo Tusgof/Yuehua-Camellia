@@ -430,7 +430,10 @@ def evaluation_stage(config_path: Path) -> dict[str, object]:
         "full_high_cost_cagr_positive": full["high_cost_cagr"] > 0,
         "full_turnover_within_125pct_of_v5": full["annual_two_sided_turnover"] <= baseline_full["annual_two_sided_turnover"] * 1.25,
     }
-    decision = "paper_ready" if all(safety.values()) and all(readiness.values()) else "revise"
+    if not frozen["selected_config"]:
+        decision = "reject"
+    else:
+        decision = "paper_ready" if all(safety.values()) and all(readiness.values()) else "revise"
     return {
         "stage": "frozen_v6_evaluation",
         "frozen_config": frozen,
