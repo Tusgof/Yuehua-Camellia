@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "strategy_id": "camellia_multilayer_taa",
+  "version": 2,
+  "frozen_on": "2026-09-18",
+  "selection_period": "development_through_2018_12_only",
+  "plan_commit": "fc1fda7b2dfb5cb662a4bdf62a1da8376cbd75e1",
+  "runner_commit": "50f3b5541193050017ef130966403bab96c704a1",
+  "data_sha256": "9ca48d680c4c5da36c3e061c02a990840a478150ca68407b1f6a9d22998b61d1",
+  "accepted_experiments": [
+    "q2_trend_gate_disabled",
+    "q3_us_top_two",
+    "q5_rebalance_threshold_5pct"
+  ],
+  "rejected_experiments": [
+    "q1_breadth_b3",
+    "q4_defensive_shy_only"
+  ],
+  "selected_parameters": {
+    "trend_gate": false,
+    "us_top_count": 2,
+    "rebalance_threshold": 0.05
+  },
+  "selection_rule_result": "combined_accepted_experiments",
+  "development_comparison": {
+    "baseline_v1": {
+      "net_cagr": 0.054789348788936376,
+      "sharpe": 0.6753786284630913,
+      "maximum_drawdown": -0.07478181288976893,
+      "annual_two_sided_turnover": 12.435457072381528
+    },
+    "frozen_v2": {
+      "net_cagr": 0.08027805624376705,
+      "sharpe": 0.8658701656935806,
+      "maximum_drawdown": -0.13047461858867115,
+      "annual_two_sided_turnover": 10.307015148412303
+    }
+  },
+  "untouched_test_evaluated_when_frozen": false
+}
