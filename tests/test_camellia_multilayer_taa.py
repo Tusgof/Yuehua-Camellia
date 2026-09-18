@@ -39,6 +39,13 @@ assert V6_SPEC and V6_SPEC.loader
 V6 = importlib.util.module_from_spec(V6_SPEC)
 V6_SPEC.loader.exec_module(V6)
 
+ROUND7_SPEC = importlib.util.spec_from_file_location(
+    "camellia_round7", ROOT / "scripts" / "experiment_camellia_round7.py"
+)
+assert ROUND7_SPEC and ROUND7_SPEC.loader
+ROUND7 = importlib.util.module_from_spec(ROUND7_SPEC)
+ROUND7_SPEC.loader.exec_module(ROUND7)
+
 
 class CamelliaBacktestTests(unittest.TestCase):
     def test_weighted_and_unweighted_momentum_are_distinct(self) -> None:
@@ -304,6 +311,50 @@ class CamelliaBacktestTests(unittest.TestCase):
             prices.loc[dates[-1], ticker] = prices.loc[dates[-2], ticker] * 0.99
         _, meta = V6.build_targets(prices, canary_consensus=True)
         self.assertEqual(int(meta.iloc[-1]["weak_canaries"]), 0)
+
+    def _round7_prices(self) -> pd.DataFrame:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        return pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(ROUND7.UNIVERSE)
+            },
+            index=dates,
+        )
+
+    def test_round7_baseline_matches_v5(self) -> None:
+        prices = self._round7_prices()
+        expected, _ = V5.build_targets(
+            prices.loc[:, list(V5.UNIVERSE)], fixed_vti=True, regional_equity=True
+        )
+        actual, _ = ROUND7.build_targets(prices)
+        pd.testing.assert_frame_equal(
+            actual.loc[:, list(V5.UNIVERSE)], expected, check_freq=False
+        )
+
+    def test_round7_structural_budget_raises_vti_and_halves_duration(self) -> None:
+        prices = self._round7_prices()
+        targets, meta = ROUND7.build_targets(prices, structural_risk_budget=True)
+        risky_budget = 1 - float(meta.iloc[-1]["canary_cf"])
+        self.assertAlmostEqual(float(targets.iloc[-1]["VTI"]), 0.50 * risky_budget)
+        self.assertAlmostEqual(float(targets.iloc[-1]["IEF"]), 0.05 * risky_budget)
+        self.assertAlmostEqual(float(targets.iloc[-1]["TLT"]), 0.05 * risky_budget)
+
+    def test_round7_selective_rate_warning_keeps_equity_and_cuts_rate_sleeves(self) -> None:
+        prices = self._round7_prices()
+        prices["TIP"] = np.linspace(140.0, 100.0, len(prices))
+        targets, meta = ROUND7.build_targets(prices, selective_canary=True)
+        self.assertEqual(meta.iloc[-1]["canary_regime"], "rate_sensitive_cut")
+        self.assertAlmostEqual(float(targets.iloc[-1]["VTI"]), 0.40)
+        self.assertGreaterEqual(float(meta.iloc[-1]["total_defensive"]), 0.30)
+
+    def test_round7_rejects_combined_candidate_flags(self) -> None:
+        with self.assertRaises(ValueError):
+            ROUND7.build_targets(
+                self._round7_prices(),
+                structural_risk_budget=True,
+                slower_regional_ranking=True,
+            )
 
 
 if __name__ == "__main__":
