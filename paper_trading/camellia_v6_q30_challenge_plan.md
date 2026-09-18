@@ -51,16 +51,38 @@ All Challenge orders must be entered manually by the owner in the Webull app. Ca
 | EWJ | 10.0% | USD 2,000 |
 | IPAC | 10.0% | USD 2,000 |
 
-The owner must first confirm that all five symbols are eligible in the Challenge and whether fractional/notional orders are supported. If only whole shares are allowed, do not approximate quantities silently; calculate them from the displayed Ask prices and leave residual cash.
+The table above is the original signal allocation. The Challenge rejected DBC and IPAC, and subsequently rejected the closer commodity substitutes PDBC, COMT and BCI. It is retained as proposal provenance, not as the executed portfolio. The Challenge accepts whole-share orders only, and its whitelist differs from the Webull Thailand live brokerage universe.
+
+### Executed Q30 Challenge adapter
+
+The execution adapter preserves the Q30 research definition while handling the Challenge whitelist:
+
+- IPAC was replaced by VWO, the next positive Regional `13612W` rank on the `2026-08-31` signal date.
+- The unavailable DBC sleeve was represented by equal target notionals in GLD and XLE. This is an execution-only inflation/energy proxy; it does not change Q30 or v6 research definitions.
+- A read-only comparison over the stored 2008-2026 sample produced 9.69% CAGR, 0.90 Sharpe, -14.26% maximum drawdown and 3.82x annual one-way turnover, versus 9.33%, 0.86, -15.40% and 3.99x for original Q30. These results justify operational similarity, not strategy promotion.
+
+Owner-confirmed fills on `2026-09-18`:
+
+| Symbol | Quantity | Average fill | Cost | Fill-based weight |
+|:--|--:|--:|--:|--:|
+| VTI | 32 | USD 374.64 | USD 11,988.48 | 59.94% |
+| EWJ | 21 | USD 96.63 | USD 2,029.23 | 10.15% |
+| VWO | 33 | USD 59.79 | USD 1,973.07 | 9.87% |
+| GLD | 3 | USD 399.30 | USD 1,197.90 | 5.99% |
+| XLE | 20 | USD 64.6755 | USD 1,293.51 | 6.47% |
+| SHY | 18 | USD 81.28 | USD 1,463.04 | 7.32% |
+| Cash | - | - | USD 54.77 | 0.27% |
+
+Total invested capital is USD 19,945.23. The individual XLE child fills remain in `paper_trading/ledger.csv`; the aggregate fill record is `paper_trading/q30_challenge_fills_2026-09-18.json`.
 
 ## Manual Execution Workflow
 
 1. Owner joins the US Stock & ETF League; this choice cannot be changed later.
-2. Owner confirms VTI, DBC, EWJ, IPAC and SHY are searchable and eligible inside the Challenge.
-3. Camellia provides notional or whole-share quantities using current displayed Ask prices.
+2. Owner verifies every proposed symbol inside the Challenge-specific whitelist.
+3. Camellia provides whole-share quantities using current displayed Ask prices and leaves a cash buffer.
 4. Owner manually submits the paper orders during regular US market hours.
 5. Owner provides executed quantities, fill prices and timestamps by screenshot or text.
-6. Camellia records only those confirmed fills in `paper_trading/ledger.csv` and creates the v6 shadow fills from the same timestamp/Bid-Ask observations.
+6. Camellia records only those confirmed fills in `paper_trading/ledger.csv`. The v6 internal shadow remains separate and is not inferred from Challenge substitutes.
 
 Do not mark an order filled from a proposal alone.
 

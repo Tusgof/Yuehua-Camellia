@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "filled",
+  "source": "owner_reported_webull_thailand_paper_trading_challenge",
+  "signal_date": "2026-08-31",
+  "canary_state": "rate_warning",
+  "starting_virtual_capital_usd": 20000.0,
+  "strategy": "q30_aggressive_risk_on_challenge_adapter",
+  "execution_constraints": {
+    "whole_shares_only": true,
+    "unavailable_symbols": ["DBC", "IPAC", "PDBC", "COMT", "BCI"]
+  },
+  "adapter": {
+    "regional": "Replace unavailable IPAC with VWO, the next positive 13612W regional rank on 2026-08-31.",
+    "commodity": "Replace unavailable DBC sleeve with equal target notionals in GLD and XLE.",
+    "scope": "Webull Challenge execution adapter only; Q30 research definition and the v6 shadow remain unchanged."
+  },
+  "positions": {
+    "VTI": {"quantity": 32, "average_fill_price": 374.64, "cost_usd": 11988.48},
+    "EWJ": {"quantity": 21, "average_fill_price": 96.63, "cost_usd": 2029.23},
+    "VWO": {"quantity": 33, "average_fill_price": 59.79, "cost_usd": 1973.07},
+    "GLD": {"quantity": 3, "average_fill_price": 399.30, "cost_usd": 1197.90},
+    "XLE": {"quantity": 20, "average_fill_price": 64.6755, "cost_usd": 1293.51},
+    "SHY": {"quantity": 18, "average_fill_price": 81.28, "cost_usd": 1463.04}
+  },
+  "summary": {
+    "invested_usd": 19945.23,
+    "residual_cash_usd": 54.77,
+    "invested_fraction": 0.9972615,
+    "fill_based_weights": {
+      "VTI": 0.599424,
+      "EWJ": 0.1014615,
+      "VWO": 0.0986535,
+      "GLD": 0.059895,
+      "XLE": 0.0646755,
+      "SHY": 0.073152,
+      "CASH": 0.0027385
+    }
+  }
+}

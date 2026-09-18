@@ -1,1 +1,11 @@
 timestamp,strategy_id,symbol,signal,target_quantity,proposed_order,simulated_fill_price,estimated_cost,status,note
+2026-09-18T11:08:16-04:00,q30_challenge_adapter,VTI,2026-08-31_rate_warning,32,BUY 32 MARKET,374.64,11988.48,filled,Owner-confirmed Webull Thailand Paper Trading Challenge fill
+2026-09-18T11:09:36-04:00,q30_challenge_adapter,EWJ,2026-08-31_rate_warning,21,BUY 21 MARKET,96.63,2029.23,filled,Owner-confirmed Webull Thailand Paper Trading Challenge fill
+2026-09-18T11:10:19-04:00,q30_challenge_adapter,SHY,2026-08-31_rate_warning,18,BUY 18 MARKET,81.28,1463.04,filled,Owner-confirmed Webull Thailand Paper Trading Challenge fill
+2026-09-18T11:18:14-04:00,q30_challenge_adapter,VWO,2026-08-31_rate_warning,33,BUY 33 MARKET,59.79,1973.07,filled,Challenge substitute for unavailable IPAC; next eligible regional momentum rank
+2026-09-18T11:25:11-04:00,q30_challenge_adapter,GLD,2026-08-31_rate_warning,3,BUY 3 MARKET,399.30,1197.90,filled,Challenge commodity adapter; one-half of unavailable DBC sleeve by design
+2026-09-18T11:26:25-04:00,q30_challenge_adapter,XLE,2026-08-31_rate_warning,20,BUY 1 MARKET,64.69,64.69,filled,Challenge commodity adapter; XLE child order 1 of 5
+2026-09-18T11:26:46-04:00,q30_challenge_adapter,XLE,2026-08-31_rate_warning,20,BUY 5 MARKET,64.69,323.45,filled,Challenge commodity adapter; XLE child order 2 of 5
+2026-09-18T11:26:49-04:00,q30_challenge_adapter,XLE,2026-08-31_rate_warning,20,BUY 10 LIMIT 64.68,64.68,646.80,filled,Challenge commodity adapter; XLE child order 3 of 5
+2026-09-18T11:27:01-04:00,q30_challenge_adapter,XLE,2026-08-31_rate_warning,20,BUY 3 MARKET,64.64,193.92,filled,Challenge commodity adapter; XLE child order 4 of 5
+2026-09-18T11:27:12-04:00,q30_challenge_adapter,XLE,2026-08-31_rate_warning,20,BUY 1 MARKET,64.65,64.65,filled,Challenge commodity adapter; XLE child order 5 of 5
