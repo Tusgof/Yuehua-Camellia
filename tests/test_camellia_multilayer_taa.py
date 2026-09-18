@@ -32,6 +32,13 @@ assert V5_SPEC and V5_SPEC.loader
 V5 = importlib.util.module_from_spec(V5_SPEC)
 V5_SPEC.loader.exec_module(V5)
 
+V6_SPEC = importlib.util.spec_from_file_location(
+    "camellia_v6", ROOT / "scripts" / "experiment_camellia_v6.py"
+)
+assert V6_SPEC and V6_SPEC.loader
+V6 = importlib.util.module_from_spec(V6_SPEC)
+V6_SPEC.loader.exec_module(V6)
+
 
 class CamelliaBacktestTests(unittest.TestCase):
     def test_weighted_and_unweighted_momentum_are_distinct(self) -> None:
@@ -67,6 +74,18 @@ class CamelliaBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(result.iloc[0]["cost"], 0.001)
         self.assertAlmostEqual(result.iloc[1]["two_sided_turnover"], 2.0)
         self.assertAlmostEqual(result.iloc[1]["cost"], 0.002)
+
+    def test_zero_weight_missing_return_does_not_contaminate_simulation(self) -> None:
+        dates = pd.date_range("2024-01-31", periods=3, freq="ME")
+        targets = pd.DataFrame(
+            {"SPY": [1.0, 1.0], "NEW": [0.0, 0.0]}, index=dates[:2]
+        )
+        returns = pd.DataFrame(
+            {"SPY": [0.01, 0.02, 0.03], "NEW": [np.nan, np.nan, 0.01]}, index=dates
+        )
+        result = BACKTEST.simulate(targets, returns, cost_rate=0.0)
+        self.assertFalse(bool(result["net_return"].isna().any()))
+        self.assertAlmostEqual(float(result.iloc[-1]["net_return"]), 0.03)
 
     def test_rebalance_threshold_skips_small_whole_rebalance(self) -> None:
         dates = pd.date_range("2020-01-31", periods=3, freq="ME")
@@ -223,6 +242,68 @@ class CamelliaBacktestTests(unittest.TestCase):
             float(meta.iloc[-1]["total_defensive"]), canary_cf + 0.20 * risky_budget
         )
         self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
+
+    def test_v6_baseline_matches_v5(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V6.UNIVERSE)
+            },
+            index=dates,
+        )
+        expected, _ = V5.build_targets(prices.loc[:, list(V5.UNIVERSE)], fixed_vti=True, regional_equity=True)
+        actual, _ = V6.build_targets(prices)
+        pd.testing.assert_frame_equal(actual.loc[:, list(V5.UNIVERSE)], expected, check_freq=False)
+        self.assertAlmostEqual(float(actual.loc[:, list(V6.NEW_TICKERS)].sum().sum()), 0.0)
+
+    def test_v6_managed_futures_replaces_ten_percent_of_vti(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V6.UNIVERSE)
+            },
+            index=dates,
+        )
+        targets, meta = V6.build_targets(prices, managed_futures=True)
+        risky_budget = 1 - float(meta.iloc[-1]["canary_cf"])
+        self.assertAlmostEqual(targets.iloc[-1]["VTI"], 0.30 * risky_budget)
+        self.assertAlmostEqual(
+            float(targets.iloc[-1][list(V6.MANAGED_FUTURES)].sum()), 0.10 * risky_budget
+        )
+        self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
+
+    def test_v6_equal_risk_regional_weights_are_bounded(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V6.UNIVERSE)
+            },
+            index=dates,
+        )
+        prices["VGK"] = 100 * np.cumprod(np.tile([1.08, 0.94], 15))
+        targets, meta = V6.build_targets(prices, regional_equal_risk=True)
+        selected = meta.iloc[-1]["regional_winners"].split(",")
+        weights = targets.iloc[-1][selected]
+        self.assertAlmostEqual(float(weights.sum()), 0.20)
+        self.assertTrue(bool((weights >= 0.05 - 1e-12).all()))
+        self.assertTrue(bool((weights <= 0.15 + 1e-12).all()))
+
+    def test_v6_canary_consensus_requires_three_negative_horizons(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V6.UNIVERSE)
+            },
+            index=dates,
+        )
+        for ticker in V6.bt.CANARIES:
+            prices.loc[dates[-1], ticker] = prices.loc[dates[-2], ticker] * 0.99
+        _, meta = V6.build_targets(prices, canary_consensus=True)
+        self.assertEqual(int(meta.iloc[-1]["weak_canaries"]), 0)
 
 
 if __name__ == "__main__":

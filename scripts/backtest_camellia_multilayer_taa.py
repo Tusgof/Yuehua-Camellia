@@ -233,6 +233,10 @@ def simulate(
             pretrade = pd.Series(0.0, index=target.index)
         else:
             realized = asset_returns.loc[signal_date, target.index]
+            realized = realized.where(previous_target.abs() > 1e-15, 0.0)
+            if realized.isna().any():
+                missing = realized.index[realized.isna()].tolist()
+                raise RuntimeError(f"missing return for held assets at {signal_date}: {missing}")
             portfolio_return = float((previous_target * realized).sum())
             pretrade = previous_target * (1 + realized) / (1 + portfolio_return)
 
@@ -243,9 +247,12 @@ def simulate(
         changes = executed_target - pretrade
         two_sided_turnover = float(changes.abs().sum())
         cost = cost_rate * two_sided_turnover
-        gross_return = float(
-            (executed_target * asset_returns.loc[return_date, target.index]).sum()
-        )
+        next_returns = asset_returns.loc[return_date, target.index]
+        next_returns = next_returns.where(executed_target.abs() > 1e-15, 0.0)
+        if next_returns.isna().any():
+            missing = next_returns.index[next_returns.isna()].tolist()
+            raise RuntimeError(f"missing return for held assets at {return_date}: {missing}")
+        gross_return = float((executed_target * next_returns).sum())
         rows.append(
             {
                 "date": return_date,
