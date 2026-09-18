@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "strategy_id": "camellia_multilayer_taa",
+  "research_round": 8,
+  "candidate_strategy_version": 7,
+  "frozen_on": "2026-09-18",
+  "plan_commit": "a1110d656aafcdf8dcdf1c8d288b7ee86ae2851a",
+  "runner_commit": "6377f3deb3b9d5fc73a3a32a8b55cef993b49ef5",
+  "data_sha256": "d172c79deb9ee206ee3c433c26d6cbd28d017c7b4186283a11be41546ce0c75f",
+  "selection_blocks": [
+    "2008-08_to_2012-12",
+    "2013-01_to_2018-12",
+    "2019-01_to_2022-12"
+  ],
+  "cumulative_trials": 32,
+  "accepted_experiments": [],
+  "rejected_experiments": [
+    "q29_partial_canary_cuts",
+    "q30_aggressive_risk_on",
+    "q31_sector_satellite",
+    "q32_conditional_overlay"
+  ],
+  "selected_experiment": null,
+  "selected_config": {},
+  "selection_rule_result": "no_candidate_passed_keep_v6",
+  "research_summary": {
+    "median_cagr": 0.08166897215047264,
+    "median_high_cost_cagr": 0.07351065243256194,
+    "median_sharpe": 0.9947823174814092,
+    "median_risk_matched_cagr": 0.08166897215047264,
+    "median_annualized_volatility": 0.0793981841582103,
+    "median_maximum_drawdown": -0.08046874200431442,
+    "worst_maximum_drawdown": -0.12121985845766814,
+    "median_upside_beta_spy": 0.2081675993278959,
+    "median_downside_beta_spy": 0.107799434364258,
+    "median_turnover": 7.63267097706445,
+    "median_gross_net_cagr_spread": 0.008211310658659432
+  },
+  "recent_diagnostic_evaluated_when_frozen": false
+}
