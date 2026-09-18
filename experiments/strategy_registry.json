@@ -11,5 +11,18 @@
     "paper_trading",
     "retired"
   ],
-  "strategies": []
+  "strategies": [
+    {
+      "id": "camellia_multilayer_taa",
+      "name": "Camellia Multi-Layer Tactical Asset Allocation",
+      "version": 1,
+      "status": "specified",
+      "source": {
+        "creator": "Yuehua Research Lab",
+        "url": "file:///D:/Fogust/Workspace/LLM%20Wiki/LLM%20Wiki/wiki/synthesis.md",
+        "accessed_on": "2026-09-18"
+      },
+      "spec_path": "strategies/camellia_multilayer_taa.md"
+    }
+  ]
 }

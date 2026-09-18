@@ -35,7 +35,7 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 ## สถานะปัจจุบัน
 
 - โครงสร้างโปรเจกต์: พร้อมใช้งานและมีตัวตรวจพื้นฐาน
-- กลยุทธ์ที่กำลังทดสอบ: ยังไม่มี
+- กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v1 สถานะ `specified`; ยังไม่ได้รัน backtest
 - กลยุทธ์ใน paper trade: ยังไม่มี
 - ผลกำไรที่ยืนยันแล้ว: ยังไม่มี
 - Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
@@ -43,7 +43,7 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 
 ## ขั้นต่อไป
 
-รับกลยุทธ์ตัวแรกจากเจ้าของ บันทึกแหล่งที่มา แปลงเป็นกติกาที่ไม่กำกวม และตกลงข้อมูล/เกณฑ์ผ่านก่อนรัน backtest
+สร้าง backtest baseline ของ `camellia_multilayer_taa` v1 ตาม strategy spec โดยเริ่มจาก data audit และทดสอบการเหลื่อมสัญญาณหนึ่งช่วงเวลาก่อนคำนวณผลจริง
 
 เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 
