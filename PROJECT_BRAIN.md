@@ -35,15 +35,15 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 ## สถานะปัจจุบัน
 
 - โครงสร้างโปรเจกต์: พร้อมใช้งานและมีตัวตรวจพื้นฐาน
-- กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v1 สถานะ `revise`; baseline backtest ถึง `2026-08` แล้ว
+- กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v2 สถานะ `revise`; five-experiment cycle และ frozen test ถึง `2026-08` แล้ว
 - กลยุทธ์ใน paper trade: ยังไม่มี
-- ผลล่าสุด: Untouched-test CAGR หลังต้นทุน 3.15%, Sharpe 0.21, maximum drawdown -20.07%; ยังไม่ผ่านเกณฑ์ paper trade
+- ผลล่าสุด: v2 Untouched-test CAGR หลังต้นทุน 3.31%, Sharpe 0.21, maximum drawdown -19.76%, turnover 9.84x; ยังไม่ผ่านเกณฑ์ paper trade
 - Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
 - Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
 ## ขั้นต่อไป
 
-ก่อนสร้าง v2 ให้แยก contribution ของ Canary gate, sleeve trend gate และ monthly rebalance เพื่อระบุสาเหตุของ turnover และผลตอบแทนที่ต่ำ โดยห้ามแก้ v1 ย้อนหลัง
+ทดสอบ stability ของ Canary breadth และ Defensive policy ด้วย walk-forward หรือหลายช่วงเวลาที่ตรึงล่วงหน้า ก่อนเปลี่ยน v2 หรือพิจารณา paper trade
 
 เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 

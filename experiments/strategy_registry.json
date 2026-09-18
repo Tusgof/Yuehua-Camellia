@@ -15,15 +15,15 @@
     {
       "id": "camellia_multilayer_taa",
       "name": "Camellia Multi-Layer Tactical Asset Allocation",
-      "version": 1,
+      "version": 2,
       "status": "revise",
       "source": {
         "creator": "Yuehua Research Lab",
         "url": "file:///D:/Fogust/Workspace/LLM%20Wiki/LLM%20Wiki/wiki/synthesis.md",
         "accessed_on": "2026-09-18"
       },
-      "spec_path": "strategies/camellia_multilayer_taa.md",
-      "backtest_report": "reports/camellia_multilayer_taa_v1.md"
+      "spec_path": "strategies/camellia_multilayer_taa_v2.md",
+      "backtest_report": "reports/camellia_multilayer_taa_v2.md"
     }
   ]
 }
