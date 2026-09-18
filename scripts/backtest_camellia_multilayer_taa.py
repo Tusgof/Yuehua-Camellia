@@ -34,6 +34,7 @@ TICKERS = (
 CANARIES = ("VWO", "BND", "TIP")
 US_EQUITY = ("SPY", "MDY", "IJR")
 DEFENSIVE = ("SHY", "IEF", "LQD")
+RISKY_UNIVERSE = ("SPY", "MDY", "IJR", "VEA", "DBC", "VNQ", "IEF", "TLT")
 TIE_ORDER_US = {ticker: rank for rank, ticker in enumerate(US_EQUITY)}
 TIE_ORDER_DEFENSIVE = {ticker: rank for rank, ticker in enumerate(DEFENSIVE)}
 STRATEGIC_WEIGHTS = {
@@ -104,8 +105,12 @@ def build_targets(
     *,
     breadth_level: int = 2,
     trend_gate: bool = True,
+    trend_retention: float = 0.0,
     us_top_count: int = 1,
+    risky_top_count: int | None = None,
     defensive_policy: str = "ranked",
+    defensive_shy_fraction: float = 0.0,
+    max_canary_cf: float = 1.0,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     if breadth_level <= 0:
         raise ValueError("breadth_level must be positive")
@@ -113,6 +118,12 @@ def build_targets(
         raise ValueError("us_top_count must be between one and three")
     if defensive_policy not in ("ranked", "shy_only"):
         raise ValueError("unsupported defensive_policy")
+    if not 0 <= trend_retention <= 1:
+        raise ValueError("trend_retention must be between zero and one")
+    if risky_top_count is not None and not 1 <= risky_top_count <= len(RISKY_UNIVERSE):
+        raise ValueError("invalid risky_top_count")
+    if not 0 <= defensive_shy_fraction <= 1:
+        raise ValueError("defensive_shy_fraction must be between zero and one")
     weighted = momentum(prices, weighted=True)
     unweighted = momentum(prices, weighted=False)
     sma = prices.rolling(sma_months, min_periods=sma_months).mean()
@@ -125,6 +136,10 @@ def build_targets(
         ],
         axis=1,
     )
+    if risky_top_count is not None:
+        required = pd.concat(
+            [required, weighted.loc[:, list(RISKY_UNIVERSE)]], axis=1
+        )
     eligible = required.notna().all(axis=1) & (prices.index >= "2008-01-01")
     signal_dates = prices.index[eligible]
     signal_dates = signal_dates[signal_dates < prices.index[-1]]
@@ -138,20 +153,30 @@ def build_targets(
     for date in signal_dates:
         canary_scores = weighted.loc[date, list(CANARIES)]
         weak_count = int((canary_scores <= 0).sum())
-        canary_cf = min(1.0, weak_count / breadth_level)
+        canary_cf = min(max_canary_cf, weak_count / breadth_level)
         risky_budget = 1.0 - canary_cf
 
-        us_ranked = sorted(
-            US_EQUITY,
-            key=lambda ticker: (-unweighted.at[date, ticker], TIE_ORDER_US[ticker]),
-        )
-        us_selected = us_ranked[:us_top_count]
-        risky_weights = {
-            ticker: 0.40 * risky_budget / us_top_count for ticker in us_selected
-        }
-        risky_weights.update(
-            {ticker: weight * risky_budget for ticker, weight in risky_fixed.items()}
-        )
+        if risky_top_count is not None:
+            risky_selected = sorted(
+                RISKY_UNIVERSE,
+                key=lambda ticker: (-weighted.at[date, ticker], RISKY_UNIVERSE.index(ticker)),
+            )[:risky_top_count]
+            risky_weights = {
+                ticker: risky_budget / risky_top_count for ticker in risky_selected
+            }
+            us_selected = [ticker for ticker in risky_selected if ticker in US_EQUITY]
+        else:
+            us_ranked = sorted(
+                US_EQUITY,
+                key=lambda ticker: (-unweighted.at[date, ticker], TIE_ORDER_US[ticker]),
+            )
+            us_selected = us_ranked[:us_top_count]
+            risky_weights = {
+                ticker: 0.40 * risky_budget / us_top_count for ticker in us_selected
+            }
+            risky_weights.update(
+                {ticker: weight * risky_budget for ticker, weight in risky_fixed.items()}
+            )
 
         target = pd.Series(0.0, index=TICKERS, dtype=float)
         failed_trend = 0.0
@@ -159,7 +184,9 @@ def build_targets(
             if not trend_gate or prices.at[date, ticker] > sma.at[date, ticker]:
                 target[ticker] += weight
             else:
-                failed_trend += weight
+                retained = weight * trend_retention
+                target[ticker] += retained
+                failed_trend += weight - retained
 
         if defensive_policy == "shy_only":
             defensive_winner = "SHY"
@@ -169,7 +196,8 @@ def build_targets(
             if defensive_scores[defensive_winner] <= 0:
                 defensive_winner = "SHY"
         total_defensive = canary_cf + failed_trend
-        target[defensive_winner] += total_defensive
+        target["SHY"] += total_defensive * defensive_shy_fraction
+        target[defensive_winner] += total_defensive * (1 - defensive_shy_fraction)
 
         if not math.isclose(float(target.sum()), 1.0, abs_tol=1e-12):
             raise AssertionError(f"target weights do not sum to one at {date}")

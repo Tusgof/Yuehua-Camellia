@@ -62,7 +62,11 @@ def run_configuration(
         "breadth_level",
         "trend_gate",
         "us_top_count",
+        "risky_top_count",
         "defensive_policy",
+        "trend_retention",
+        "defensive_shy_fraction",
+        "max_canary_cf",
     }
     target_parameters = {
         key: value for key, value in parameters.items() if key in target_keys
