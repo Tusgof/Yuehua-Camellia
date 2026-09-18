@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "strategy_id": "camellia_multilayer_taa",
+  "version": 3,
+  "frozen_on": "2026-09-18",
+  "plan_commit": "b1d63f9e3c32931d455258d472f2fb98549da038",
+  "runner_commit": "a13e6aa9d17c52bb833686fe7d243659d00302b0",
+  "selection_blocks": [
+    "2008-08_to_2012-12",
+    "2013-01_to_2018-12",
+    "2019-01_to_2022-12"
+  ],
+  "accepted_experiments": [
+    "q10_volatility_target"
+  ],
+  "rejected_experiments": [
+    "q6_soft_canary",
+    "q7_partial_trend",
+    "q8_cross_asset_top4",
+    "q9_blended_defense"
+  ],
+  "selected_parameters": {
+    "volatility_target": 0.15,
+    "volatility_lookback": 12,
+    "leverage_cap": 2.0
+  },
+  "selection_rule_result": "best_single:q10_volatility_target",
+  "research_summary": {
+    "median_cagr": 0.08629878907019739,
+    "median_sharpe": 0.9021907345729264,
+    "worst_maximum_drawdown": -0.24274527619275454
+  },
+  "recent_holdout_evaluated_when_frozen": false
+}
