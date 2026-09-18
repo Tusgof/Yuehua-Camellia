@@ -44,4 +44,3 @@ SMA 9 และ 11 ให้ผลใกล้ baseline และผ่าน se
 คำตัดสินคือ `revise` เพราะไม่ผ่าน Sharpe และ maximum drawdown rule แม้ CAGR เป็นบวกและ sensitivity ผ่าน
 
 ก่อนสร้าง v2 ควรแยก attribution ของ Canary, trend gate และการ rebalance เพื่อดูว่าชั้นใดสร้างการลดความเสี่ยงจริงและชั้นใดสร้าง turnover จากนั้นจึงกำหนดกฎลด turnover ล่วงหน้า เช่น rebalance threshold โดยไม่ย้อนกลับไปเลือกค่าจากผล v1
-
