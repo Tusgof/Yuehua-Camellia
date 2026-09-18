@@ -35,15 +35,15 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 ## สถานะปัจจุบัน
 
 - โครงสร้างโปรเจกต์: พร้อมใช้งานและมีตัวตรวจพื้นฐาน
-- กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v4 สถานะ `revise`; ใช้ Defensive policy แยก SHY, deflation และ inflation pocket โดยไม่ใช้ leverage
+- กลยุทธ์ที่กำลังทำ: `camellia_multilayer_taa` v5 สถานะ `paper_ready`; ใช้ VTI คงที่, regional equity momentum และ Defensive policy ของ v4 โดยไม่ใช้ leverage
 - กลยุทธ์ใน paper trade: ยังไม่มี
-- ผลล่าสุด: v4 ช่วงเต็ม CAGR 6.18%, Sharpe 0.63, maximum drawdown -12.48% และ turnover 8.24x; recent diagnostic CAGR 4.49%, Sharpe 0.14 และ maximum drawdown -10.70%
+- ผลล่าสุด: v5 ช่วงเต็ม CAGR 6.47%, Sharpe 0.74, maximum drawdown -11.79% และ turnover 8.33x; recent diagnostic CAGR 5.75%, Sharpe 0.34 และ maximum drawdown -8.13%
 - Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
 - Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
 ## ขั้นต่อไป
 
-เก็บ Defensive policy ของ v4 แล้วทดสอบ return engine ที่เรียบง่ายกว่า โดยเริ่มจาก fixed SPY เทียบกับ market-cap rotation ตามแผนที่ตรึงล่วงหน้า ห้ามเลือกย้อนหลังจาก attribution รอบ v4
+จัดทำ paper-trading plan สำหรับ v5 เป็น milestone แยก โดยเริ่มจาก offline signal/order proposal, position limits, stop conditions และ simulated fills แล้วขออนุมัติเจ้าของก่อนทำ read-only Webull validation
 
 เมื่อต้องเริ่ม paper trade ให้อ่าน `docs/WEBULL_OPENAPI.md` และเริ่มจาก offline adapter กับ read-only check ห้ามกระโดดไป order endpoint
 

@@ -202,6 +202,28 @@ class CamelliaBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(targets.iloc[-1]["VTI"], 0.40 * risky_budget)
         self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
 
+    def test_v5_unused_regional_weight_moves_to_defense(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V5.UNIVERSE)
+            },
+            index=dates,
+        )
+        prices["VWO"] = np.linspace(140.0, 100.0, len(dates))
+        prices.loc[:, ["VGK", "EWJ", "IPAC"]] = np.nan
+
+        targets, meta = V5.build_targets(prices, regional_equity=True)
+        canary_cf = float(meta.iloc[-1]["canary_cf"])
+        risky_budget = 1 - canary_cf
+
+        self.assertEqual(meta.iloc[-1]["regional_winners"], "")
+        self.assertAlmostEqual(
+            float(meta.iloc[-1]["total_defensive"]), canary_cf + 0.20 * risky_budget
+        )
+        self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
