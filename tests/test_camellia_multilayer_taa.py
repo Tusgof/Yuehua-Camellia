@@ -52,6 +52,34 @@ class CamelliaBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(result.iloc[1]["two_sided_turnover"], 2.0)
         self.assertAlmostEqual(result.iloc[1]["cost"], 0.002)
 
+    def test_rebalance_threshold_skips_small_whole_rebalance(self) -> None:
+        dates = pd.date_range("2020-01-31", periods=3, freq="ME")
+        returns = pd.DataFrame(0.0, index=dates, columns=BACKTEST.TICKERS)
+        targets = pd.DataFrame(0.0, index=dates[:2], columns=BACKTEST.TICKERS)
+        targets.loc[dates[0], ["SPY", "IEF"]] = [0.50, 0.50]
+        targets.loc[dates[1], ["SPY", "IEF"]] = [0.53, 0.47]
+
+        result = BACKTEST.simulate(
+            targets, returns, cost_rate=0.001, rebalance_threshold=0.05
+        )
+
+        self.assertTrue(result.iloc[1]["rebalance_skipped"])
+        self.assertEqual(result.iloc[1]["cost"], 0.0)
+
+    def test_top_two_us_assets_split_us_sleeve(self) -> None:
+        dates = pd.date_range("2018-01-31", periods=25, freq="ME")
+        base = np.linspace(100.0, 130.0, len(dates))
+        prices = pd.DataFrame(
+            {ticker: base * (1 + rank / 1000) for rank, ticker in enumerate(BACKTEST.TICKERS)},
+            index=dates,
+        )
+
+        targets, meta = BACKTEST.build_targets(prices, 10, us_top_count=2)
+
+        selected = meta.iloc[-1]["us_winners"].split(",")
+        self.assertEqual(len(selected), 2)
+        self.assertAlmostEqual(targets.iloc[-1][selected].sum(), 0.40)
+
     def test_completed_month_excludes_current_partial_month(self) -> None:
         index = pd.to_datetime(["2026-08-31", "2026-09-17"])
         prices = pd.DataFrame({"SPY": [100.0, 101.0]}, index=index)

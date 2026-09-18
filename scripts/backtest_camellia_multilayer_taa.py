@@ -99,8 +99,20 @@ def ranked_winner(scores: pd.Series, order: dict[str, int]) -> str:
 
 
 def build_targets(
-    prices: pd.DataFrame, sma_months: int
+    prices: pd.DataFrame,
+    sma_months: int,
+    *,
+    breadth_level: int = 2,
+    trend_gate: bool = True,
+    us_top_count: int = 1,
+    defensive_policy: str = "ranked",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if breadth_level <= 0:
+        raise ValueError("breadth_level must be positive")
+    if us_top_count not in (1, 2, 3):
+        raise ValueError("us_top_count must be between one and three")
+    if defensive_policy not in ("ranked", "shy_only"):
+        raise ValueError("unsupported defensive_policy")
     weighted = momentum(prices, weighted=True)
     unweighted = momentum(prices, weighted=False)
     sma = prices.rolling(sma_months, min_periods=sma_months).mean()
@@ -126,11 +138,17 @@ def build_targets(
     for date in signal_dates:
         canary_scores = weighted.loc[date, list(CANARIES)]
         weak_count = int((canary_scores <= 0).sum())
-        canary_cf = min(1.0, weak_count / 2)
+        canary_cf = min(1.0, weak_count / breadth_level)
         risky_budget = 1.0 - canary_cf
 
-        us_winner = ranked_winner(unweighted.loc[date, list(US_EQUITY)], TIE_ORDER_US)
-        risky_weights = {us_winner: 0.40 * risky_budget}
+        us_ranked = sorted(
+            US_EQUITY,
+            key=lambda ticker: (-unweighted.at[date, ticker], TIE_ORDER_US[ticker]),
+        )
+        us_selected = us_ranked[:us_top_count]
+        risky_weights = {
+            ticker: 0.40 * risky_budget / us_top_count for ticker in us_selected
+        }
         risky_weights.update(
             {ticker: weight * risky_budget for ticker, weight in risky_fixed.items()}
         )
@@ -138,15 +156,18 @@ def build_targets(
         target = pd.Series(0.0, index=TICKERS, dtype=float)
         failed_trend = 0.0
         for ticker, weight in risky_weights.items():
-            if prices.at[date, ticker] > sma.at[date, ticker]:
+            if not trend_gate or prices.at[date, ticker] > sma.at[date, ticker]:
                 target[ticker] += weight
             else:
                 failed_trend += weight
 
-        defensive_scores = weighted.loc[date, list(DEFENSIVE)]
-        defensive_winner = ranked_winner(defensive_scores, TIE_ORDER_DEFENSIVE)
-        if defensive_scores[defensive_winner] <= 0:
+        if defensive_policy == "shy_only":
             defensive_winner = "SHY"
+        else:
+            defensive_scores = weighted.loc[date, list(DEFENSIVE)]
+            defensive_winner = ranked_winner(defensive_scores, TIE_ORDER_DEFENSIVE)
+            if defensive_scores[defensive_winner] <= 0:
+                defensive_winner = "SHY"
         total_defensive = canary_cf + failed_trend
         target[defensive_winner] += total_defensive
 
@@ -159,7 +180,7 @@ def build_targets(
                 "weak_canaries": weak_count,
                 "canary_cf": canary_cf,
                 "total_defensive": total_defensive,
-                "us_winner": us_winner,
+                "us_winners": ",".join(us_selected),
                 "defensive_winner": defensive_winner,
             }
         )
@@ -171,6 +192,7 @@ def simulate(
     targets: pd.DataFrame,
     asset_returns: pd.DataFrame,
     cost_rate: float,
+    rebalance_threshold: float = 0.0,
 ) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     previous_target: pd.Series | None = None
@@ -186,10 +208,16 @@ def simulate(
             portfolio_return = float((previous_target * realized).sum())
             pretrade = previous_target * (1 + realized) / (1 + portfolio_return)
 
-        changes = target - pretrade
+        proposed_changes = target - pretrade
+        proposed_one_way = float(proposed_changes.abs().sum() / 2)
+        skip_rebalance = previous_target is not None and proposed_one_way < rebalance_threshold
+        executed_target = pretrade if skip_rebalance else target
+        changes = executed_target - pretrade
         two_sided_turnover = float(changes.abs().sum())
         cost = cost_rate * two_sided_turnover
-        gross_return = float((target * asset_returns.loc[return_date, target.index]).sum())
+        gross_return = float(
+            (executed_target * asset_returns.loc[return_date, target.index]).sum()
+        )
         rows.append(
             {
                 "date": return_date,
@@ -200,13 +228,11 @@ def simulate(
                 "two_sided_turnover": two_sided_turnover,
                 "one_way_turnover": two_sided_turnover / 2,
                 "orders": int((changes.abs() > 1e-10).sum()),
-                "target_changed": bool(
-                    previous_target is None
-                    or not np.allclose(target.values, previous_target.values, atol=1e-10)
-                ),
+                "target_changed": not skip_rebalance,
+                "rebalance_skipped": skip_rebalance,
             }
         )
-        previous_target = target
+        previous_target = executed_target
 
     return pd.DataFrame(rows).set_index("date")
 
