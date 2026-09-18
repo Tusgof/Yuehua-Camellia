@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -9,12 +10,20 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 SPEC = importlib.util.spec_from_file_location(
     "camellia_backtest", ROOT / "scripts" / "backtest_camellia_multilayer_taa.py"
 )
 assert SPEC and SPEC.loader
 BACKTEST = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BACKTEST)
+
+V4_SPEC = importlib.util.spec_from_file_location(
+    "camellia_v4", ROOT / "scripts" / "experiment_camellia_v4.py"
+)
+assert V4_SPEC and V4_SPEC.loader
+V4 = importlib.util.module_from_spec(V4_SPEC)
+V4_SPEC.loader.exec_module(V4)
 
 
 class CamelliaBacktestTests(unittest.TestCase):
@@ -89,6 +98,44 @@ class CamelliaBacktestTests(unittest.TestCase):
         )
 
         self.assertEqual(list(monthly.index), [pd.Timestamp("2026-08-31")])
+
+    def test_v4_baseline_matches_v2_targets(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V4.UNIVERSE)
+            },
+            index=dates,
+        )
+
+        expected, _ = BACKTEST.build_targets(
+            prices.loc[:, list(BACKTEST.TICKERS)],
+            10,
+            trend_gate=False,
+            us_top_count=2,
+        )
+        actual, _ = V4.build_modular_targets(prices)
+
+        pd.testing.assert_frame_equal(
+            actual.loc[:, list(BACKTEST.TICKERS)], expected, check_freq=False
+        )
+        self.assertAlmostEqual(float(actual.loc[:, list(V4.EXTRA_TICKERS)].sum().sum()), 0.0)
+
+    def test_cost_aware_execution_trades_when_canary_risk_rises(self) -> None:
+        dates = pd.date_range("2020-01-31", periods=3, freq="ME")
+        returns = pd.DataFrame(0.0, index=dates, columns=V4.UNIVERSE)
+        targets = pd.DataFrame(0.0, index=dates[:2], columns=V4.UNIVERSE)
+        targets.loc[dates[0], ["SPY", "SHY"]] = [0.90, 0.10]
+        targets.loc[dates[1], ["SPY", "SHY"]] = [0.80, 0.20]
+        meta = pd.DataFrame(
+            {"canary_cf": [0.0, 0.5]}, index=dates[:2]
+        )
+
+        result = V4.simulate_cost_aware(targets, returns, meta, cost_rate=0.001)
+
+        self.assertTrue(result.iloc[1]["target_changed"])
+        self.assertGreater(result.iloc[1]["cost"], 0.0)
 
 
 if __name__ == "__main__":
