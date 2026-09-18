@@ -35,6 +35,14 @@ Lily ตรวจ production API เมื่อ `2026-07-15` โดยใช้
 - ไม่มีการเรียก preview/place/replace/cancel และไม่มี order ถูกส่ง
 - ไม่มี credential, token, Account ID, ยอดเงิน หรือรายการถือครองถูกบันทึกลง Git
 
+เจ้าของบัญชียืนยันผ่านหน้าแอป Webull Thailand เมื่อ `2026-09-18` เพิ่มเติมว่า ETF ต่อไปนี้ค้นหาเจอ ซื้อขายได้ และรองรับ fractional shares:
+
+- DBMF
+- KMLM
+- CTA
+
+หลักฐานชุดนี้เป็นคำยืนยันจากเจ้าของ ไม่ใช่ผลตอบกลับจาก OpenAPI จึงไม่ควรตีความเป็นการยืนยันค่า `status=OC`, minimum notional, spread, liquidity หรือคุณภาพราคา fill
+
 หลักฐานต้นทาง:
 
 - Lily `reports/feasibility/l_0_webull_th_read_only_capability.json`
