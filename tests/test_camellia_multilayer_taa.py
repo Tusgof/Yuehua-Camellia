@@ -25,6 +25,13 @@ assert V4_SPEC and V4_SPEC.loader
 V4 = importlib.util.module_from_spec(V4_SPEC)
 V4_SPEC.loader.exec_module(V4)
 
+V5_SPEC = importlib.util.spec_from_file_location(
+    "camellia_v5", ROOT / "scripts" / "experiment_camellia_v5.py"
+)
+assert V5_SPEC and V5_SPEC.loader
+V5 = importlib.util.module_from_spec(V5_SPEC)
+V5_SPEC.loader.exec_module(V5)
+
 
 class CamelliaBacktestTests(unittest.TestCase):
     def test_weighted_and_unweighted_momentum_are_distinct(self) -> None:
@@ -157,6 +164,42 @@ class CamelliaBacktestTests(unittest.TestCase):
 
         self.assertGreater(defensive_budget, 0.0)
         self.assertGreaterEqual(targets.iloc[-1]["SHY"], 0.5 * defensive_budget)
+        self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
+
+    def test_v5_baseline_matches_v4(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V5.UNIVERSE)
+            },
+            index=dates,
+        )
+
+        expected, _ = V4.build_modular_targets(
+            prices.loc[:, list(V4.UNIVERSE)], diversified_defense=True
+        )
+        actual, _ = V5.build_targets(prices)
+
+        pd.testing.assert_frame_equal(
+            actual.loc[:, list(V4.UNIVERSE)], expected, check_freq=False
+        )
+        self.assertAlmostEqual(float(actual.loc[:, list(V5.NEW_TICKERS)].sum().sum()), 0.0)
+
+    def test_v5_fixed_vti_uses_forty_percent_of_risky_budget(self) -> None:
+        dates = pd.date_range("2016-01-31", periods=30, freq="ME")
+        prices = pd.DataFrame(
+            {
+                ticker: np.linspace(100.0 + rank, 140.0 + rank, len(dates))
+                for rank, ticker in enumerate(V5.UNIVERSE)
+            },
+            index=dates,
+        )
+
+        targets, meta = V5.build_targets(prices, fixed_vti=True)
+        risky_budget = 1 - float(meta.iloc[-1]["canary_cf"])
+
+        self.assertAlmostEqual(targets.iloc[-1]["VTI"], 0.40 * risky_budget)
         self.assertAlmostEqual(float(targets.iloc[-1].sum()), 1.0)
 
 
