@@ -1,6 +1,6 @@
 # คู่มือ Webull OpenAPI สำหรับ Camellia
 
-อัปเดตล่าสุด: `2026-09-18`
+อัปเดตล่าสุด: `2026-09-25`
 
 เอกสารนี้ย้ายเฉพาะความรู้ที่ใช้ซ้ำได้จาก Lily และตรวจข้อมูลปัจจุบันจากเอกสารทางการ ไม่ย้าย credential, token, Account ID, response ดิบ หรือระบบ governance ของ Lily
 
@@ -92,6 +92,22 @@ Lily ตรวจ production API เมื่อ `2026-07-15` โดยใช้
 เอกสาร OpenAPI ทางการระบุ account type เพียง `CASH` และ account class `INDIVIDUAL_CASH` และไม่มี paper/simulated/Challenge account หรือ paper-order endpoint ดังนั้น Camellia ถือว่า **Challenge ไม่รองรับการส่งคำสั่งผ่าน API** จนกว่า Webull จะมีเอกสารทางการหรือ endpoint ที่พิสูจน์ตรงกันข้าม ห้ามใช้ production brokerage order endpoint ทดลองกับ Challenge
 
 การตรวจ read-only เมื่อ `2026-09-18` พบว่า environment ยังมี App Key/Secret แต่ token directory เดิมไม่มีอยู่แล้ว SDK ไม่ตอบกลับภายใน 30 วินาที จึงหยุดโดยไม่อ่าน payload บัญชีและไม่เรียก preview/place/replace/cancel
+
+การตรวจ Camellia อีกครั้งเมื่อ `2026-09-25` ใช้ Python 3.11.9 และ SDK 2.0.13: key/secret มีใน process environment, host `api.webull.co.th` ติดต่อได้, แต่ token ใหม่มีสถานะ `PENDING` หลังจำกัดเวลารอยืนยัน 12 วินาที จึงยังไม่ได้อ่าน account list, balance, positions หรือ instrument metadata และไม่มี order call ต้องให้เจ้าของยืนยันคำขอ OpenAPI ที่รู้จักในแอป Webull ก่อนเรียก read-only probe ซ้ำ ห้ามส่ง OTP ในแชต
+
+คำสั่งตรวจซ้ำจาก root โปรเจกต์:
+
+```powershell
+py -3.11 scripts/check_webull_read_only.py
+```
+
+สคริปต์จำกัดเวลารวม 40 วินาที ใช้เฉพาะ auth และ read-only endpoints ที่ระบุไว้ด้านล่าง เก็บ token ภายนอก repo ที่ `%LOCALAPPDATA%/Yuehua-Camellia/webull-token` และพิมพ์เฉพาะสถานะ endpoint กับ metadata สาธารณะของ ETF เมื่อสำเร็จ
+
+## Market-on-Open (MOO) สำหรับบัญชีจริง
+
+ตรวจเอกสาร Webull Thailand อย่างเป็นทางการเมื่อ `2026-09-25`: [Trading API Overview](https://developer.webull.co.th/apis/docs/trade-api/overview.md), [Stock Trading](https://developer.webull.co.th/apis/docs/trade-api/stock.md) และ [Place Order schema](https://developer.webull.co.th/apis/docs/reference/trade-api/common-order-place.md) ระบุ order type ของหุ้นสหรัฐฯ เพียง `MARKET`, `LIMIT`, `STOP_LOSS`, `STOP_LOSS_LIMIT`; `time_in_force` มี `DAY`/`GTC` และ `support_trading_session=CORE` หมายถึงช่วงเวลาซื้อขายปกติ ไม่ได้หมายถึงจับคู่ที่ราคาเปิด
+
+ดังนั้น **ยังไม่มี native MOO ผ่าน Webull Thailand OpenAPI ตามเอกสารปัจจุบัน** และไม่ควรส่ง `MARKET` + `DAY` + `CORE` แล้วเรียกว่า MOO การตั้งเวลาส่ง market order หลังเปิดตลาดเป็นเพียงการประมาณ ซึ่งอาจได้ราคา/เวลาแตกต่างจาก opening auction; ยังไม่ใช่ความสามารถที่ทดสอบหรืออนุมัติให้ใช้งาน
 
 Lily เคยลองยืนยัน UAT แล้ว authentication ไม่เข้าสู่สถานะพร้อมภายในเวลาที่กำหนด และไม่พบขั้นตอนสาธารณะสำหรับจัดสรร test account ที่เจ้าของควบคุมได้ ดังนั้น hostname UAT เป็นเพียงข้อมูลอ้างอิง ไม่ใช่สิทธิ์ใช้งานที่ยืนยันแล้ว
 

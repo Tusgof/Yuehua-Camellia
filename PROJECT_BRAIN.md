@@ -40,7 +40,8 @@ Camellia นำกลยุทธ์จากแหล่งภายนอก�
 - ผลล่าสุด: v6 ช่วงเต็ม CAGR 7.50%, Sharpe 0.83, maximum drawdown -14.44% และ turnover 7.79x; recent diagnostic CAGR 7.69%, Sharpe 0.60 และ maximum drawdown -5.51%
 - Research round 7: Q26 Selective Canary ผ่านเกณฑ์ใหม่และสร้าง strategy v6; Q27 Structural Risk Budget และ Q28 Slower Regional Ranking ถูกปฏิเสธ
 - Camellia Growth round 8: `reject`; Q29–Q32 ไม่มี candidate ผ่านเกณฑ์ครบ จึงไม่สร้าง v7 โดย Q30 Aggressive Risk-On เป็น shadow candidate ที่น่าติดตามแต่ยังไม่รับ allocation
-- Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily แต่ Camellia ยังไม่อ่าน credential หรือเชื่อม API
+- Webull: ย้ายองค์ความรู้จาก Lily แล้ว; production read-only เคยยืนยันใน Lily. การตรวจ Camellia วันที่ `2026-09-25` พบ key/secret ใน process environment และสร้าง token ได้ แต่ token ยัง `PENDING` รอ 2FA ในแอป จึงยังไม่ได้อ่านบัญชีหรือ metadata. ตรวจซ้ำด้วย `py -3.11 scripts/check_webull_read_only.py` หลังเจ้าของยืนยันในแอป; สคริปต์จำกัดเฉพาะ read-only และไม่พิมพ์ข้อมูลบัญชี
+- Webull MOO: เอกสาร Thailand OpenAPI วันที่ `2026-09-25` มี `MARKET`, `LIMIT`, `STOP_LOSS`, `STOP_LOSS_LIMIT` และ `DAY`/`GTC` แต่ไม่มี native Market-on-Open; `MARKET`+`DAY`+`CORE` ไม่ใช่ MOO. ดู `docs/WEBULL_OPENAPI.md`
 - Webull Challenge: ไม่พบ paper-order API จึงใช้ owner-manual execution; DBC, IPAC, PDBC, COMT และ BCI ไม่อยู่ใน Challenge whitelist จึงใช้ VWO แทน IPAC และ GLD/XLE แทน DBC เฉพาะพอร์ต Challenge ตาม `paper_trading/q30_challenge_fills_2026-09-18.json`
 - Webull options: เอกสารทางการระบุว่ารองรับ US single-leg options; permission และข้อมูลตลาดของบัญชีเจ้าของยังไม่ยืนยัน
 
