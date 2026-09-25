@@ -97,6 +97,8 @@ Lily ตรวจ production API เมื่อ `2026-07-15` โดยใช้
 
 หลังเจ้าของยืนยันคำขอในแอปวันที่ `2026-09-25` การเรียก probe ซ้ำสำเร็จ: authentication, account list, balance, positions และ instrument metadata ตอบกลับสำเร็จ บน Python 3.11.9 / SDK 2.0.13 / region `th` / host `api.webull.co.th`; VTI, EWJ, VWO, GLD, XLE, SHY, DBC และ IPAC คืน `status=OC` และ `fractionable=true` ทุกตัว เรียก read-only 4 endpoints และ order 0 ครั้ง ผลนี้ไม่ยืนยันสิทธิ์ส่ง order, ขั้นต่ำ fractional, ราคา fill หรือ MOO และไม่ได้บันทึกค่าบัญชีหรือ response ดิบลง repo
 
+เมื่อเจ้าของอนุมัติให้ตรวจ `preview` วันที่ `2026-09-25` Camellia เรียก production preview endpoint สองครั้งกับ VTI จำนวน `0.01` หุ้น: `MARKET` + `DAY` + `CORE` ได้ HTTP 200 และมี estimated cost/fee; `MOO` ถูกปฏิเสธด้วย `OPENAPI_PARAM_ERR` ทั้งสองครั้งเป็น preview และ `orders_sent=0` การทดสอบนี้ยืนยันว่าบัญชีและสิทธิ์ API ใช้ order preview ได้ แต่ยังไม่ใช่หลักฐานว่าส่งคำสั่งหรือจับคู่จริงได้
+
 คำสั่งตรวจซ้ำจาก root โปรเจกต์:
 
 ```powershell
@@ -110,6 +112,20 @@ py -3.11 scripts/check_webull_read_only.py
 ตรวจเอกสาร Webull Thailand อย่างเป็นทางการเมื่อ `2026-09-25`: [Trading API Overview](https://developer.webull.co.th/apis/docs/trade-api/overview.md), [Stock Trading](https://developer.webull.co.th/apis/docs/trade-api/stock.md) และ [Place Order schema](https://developer.webull.co.th/apis/docs/reference/trade-api/common-order-place.md) ระบุ order type ของหุ้นสหรัฐฯ เพียง `MARKET`, `LIMIT`, `STOP_LOSS`, `STOP_LOSS_LIMIT`; `time_in_force` มี `DAY`/`GTC` และ `support_trading_session=CORE` หมายถึงช่วงเวลาซื้อขายปกติ ไม่ได้หมายถึงจับคู่ที่ราคาเปิด
 
 ดังนั้น **ยังไม่มี native MOO ผ่าน Webull Thailand OpenAPI ตามเอกสารปัจจุบัน** และไม่ควรส่ง `MARKET` + `DAY` + `CORE` แล้วเรียกว่า MOO การตั้งเวลาส่ง market order หลังเปิดตลาดเป็นเพียงการประมาณ ซึ่งอาจได้ราคา/เวลาแตกต่างจาก opening auction; ยังไม่ใช่ความสามารถที่ทดสอบหรืออนุมัติให้ใช้งาน
+
+## ตัวเลือกที่ปรับแต่งได้ในคำสั่งหุ้น
+
+- `order_type`: `MARKET`, `LIMIT`, `STOP_LOSS`, `STOP_LOSS_LIMIT`
+- `side`: `BUY` หรือ `SELL`
+- `quantity`: จำนวนหน่วย รวมจำนวนทศนิยมสำหรับ fractional เมื่อโบรกเกอร์รองรับ
+- `entrust_type`: `QTY` หรือ `AMOUNT` โดย `AMOUNT` ใช้สั่งเป็นมูลค่าเงินสำหรับ fractional US stocks
+- `limit_price`: ใช้กับ `LIMIT` และ `STOP_LOSS_LIMIT`
+- `stop_price`: ใช้กับ `STOP_LOSS` และ `STOP_LOSS_LIMIT`
+- `time_in_force`: `DAY` หรือ `GTC`
+- `support_trading_session`: `CORE`, `ALL`, `NIGHT` หรือ `ALL_DAY` ตามสิทธิ์และช่วงเวลาที่รองรับ
+- `client_order_id`: รหัสอ้างอิงของเราที่ไม่ซ้ำกัน ความยาวไม่เกิน 32 ตัวอักษร
+
+สำหรับ Camellia การส่งคำสั่งเชิงระบบที่เหมาะสมคือสร้าง order preview ก่อนทุกครั้ง ตรวจ estimated cost/fee และค่อยแยกงาน place order ที่ได้รับอนุมัติเป็นครั้ง ๆ ส่วน MOO ยังไม่มีค่าที่ใช้งานได้ใน schema หรือ preview ของบัญชีนี้
 
 Lily เคยลองยืนยัน UAT แล้ว authentication ไม่เข้าสู่สถานะพร้อมภายในเวลาที่กำหนด และไม่พบขั้นตอนสาธารณะสำหรับจัดสรร test account ที่เจ้าของควบคุมได้ ดังนั้น hostname UAT เป็นเพียงข้อมูลอ้างอิง ไม่ใช่สิทธิ์ใช้งานที่ยืนยันแล้ว
 
