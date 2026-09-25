@@ -95,6 +95,8 @@ Lily ตรวจ production API เมื่อ `2026-07-15` โดยใช้
 
 การตรวจ Camellia อีกครั้งเมื่อ `2026-09-25` ใช้ Python 3.11.9 และ SDK 2.0.13: key/secret มีใน process environment, host `api.webull.co.th` ติดต่อได้, แต่ token ใหม่มีสถานะ `PENDING` หลังจำกัดเวลารอยืนยัน 12 วินาที จึงยังไม่ได้อ่าน account list, balance, positions หรือ instrument metadata และไม่มี order call ต้องให้เจ้าของยืนยันคำขอ OpenAPI ที่รู้จักในแอป Webull ก่อนเรียก read-only probe ซ้ำ ห้ามส่ง OTP ในแชต
 
+หลังเจ้าของยืนยันคำขอในแอปวันที่ `2026-09-25` การเรียก probe ซ้ำสำเร็จ: authentication, account list, balance, positions และ instrument metadata ตอบกลับสำเร็จ บน Python 3.11.9 / SDK 2.0.13 / region `th` / host `api.webull.co.th`; VTI, EWJ, VWO, GLD, XLE, SHY, DBC และ IPAC คืน `status=OC` และ `fractionable=true` ทุกตัว เรียก read-only 4 endpoints และ order 0 ครั้ง ผลนี้ไม่ยืนยันสิทธิ์ส่ง order, ขั้นต่ำ fractional, ราคา fill หรือ MOO และไม่ได้บันทึกค่าบัญชีหรือ response ดิบลง repo
+
 คำสั่งตรวจซ้ำจาก root โปรเจกต์:
 
 ```powershell
